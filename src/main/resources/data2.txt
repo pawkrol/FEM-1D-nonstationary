@@ -1,0 +1,10 @@
+9 nodes
+0.07 Rmin-[m]
+0.08 Rmax-[m]
+300 alphaAir-[W/(m2*C)]
+100 tempBegin-[C]
+1200 tempAir-[C]
+700 C-[J/(kg*C)]
+7800 Ro-[kg/m3]
+25 K-[W/(m*C)]
+1000 tauMax-[s]
