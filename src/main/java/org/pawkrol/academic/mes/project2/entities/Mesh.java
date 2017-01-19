@@ -14,19 +14,17 @@ public class Mesh {
     private List<Node> nodes;
 
     private int n;
-    private double rMin;
-    private double rMax;
     private double tauMax;
+    private double dtau;
+    private float rMin;
+    private float rMax;
     private float alpha;
     private float tempBegin;
     private float tempAir;
-    private float c;
-    private float ro;
-    private float k;
 
-    public void build(){
-        buildNodes();
-        buildElements();
+    public Mesh(){
+        elements = new ArrayList<>();
+        nodes = new ArrayList<>();
     }
 
     public int getN() {
@@ -37,19 +35,19 @@ public class Mesh {
         this.n = n;
     }
 
-    public double getrMin() {
+    public float getrMin() {
         return rMin;
     }
 
-    public void setrMin(double rMin) {
+    public void setrMin(float rMin) {
         this.rMin = rMin;
     }
 
-    public double getrMax() {
+    public float getrMax() {
         return rMax;
     }
 
-    public void setrMax(double rMax) {
+    public void setrMax(float rMax) {
         this.rMax = rMax;
     }
 
@@ -77,30 +75,6 @@ public class Mesh {
         this.tempAir = tempAir;
     }
 
-    public float getC() {
-        return c;
-    }
-
-    public void setC(float c) {
-        this.c = c;
-    }
-
-    public float getRo() {
-        return ro;
-    }
-
-    public void setRo(float ro) {
-        this.ro = ro;
-    }
-
-    public float getK() {
-        return k;
-    }
-
-    public void setK(float k) {
-        this.k = k;
-    }
-
     public double getTauMax() {
         return tauMax;
     }
@@ -109,7 +83,15 @@ public class Mesh {
         this.tauMax = tauMax;
     }
 
-    public double getDr() {
+    public double getDtau() {
+        return dtau;
+    }
+
+    public void setDtau(double dtau) {
+        this.dtau = dtau;
+    }
+
+    public float getDr() {
         int ne = n - 1;
         return (rMax - rMin) / ne;
     }
@@ -129,16 +111,13 @@ public class Mesh {
         }
     }
 
-    private void buildElements(){
-        elements = new ArrayList<>();
-
-        for (int i = 0; i < nodes.size() - 1; i++){
-            elements.add(new Element(nodes.get(i), nodes.get(i + 1)));
+    public void buildElementsWithMaterial(int startNode, int endNode, Material material){
+        for (int i = startNode; i < endNode; i++){
+            elements.add(new Element(nodes.get(i), nodes.get(i + 1), material));
         }
     }
 
-    private List<Node> buildNodes(){
-        nodes = new ArrayList<>();
+    public List<Node> buildNodes(){
         double r = rMin;
         double dr = getDr();
 
@@ -158,4 +137,5 @@ public class Mesh {
 
         return nodes;
     }
+
 }

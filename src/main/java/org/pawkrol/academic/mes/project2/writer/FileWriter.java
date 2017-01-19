@@ -1,9 +1,6 @@
-package org.pawkrol.academic.mes.project2;
+package org.pawkrol.academic.mes.project2.writer;
 
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.linear.RealVector;
-import org.apache.commons.math3.linear.SymmLQ;
-import org.apache.commons.math3.util.DoubleArray;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -11,7 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -19,21 +15,27 @@ import java.util.List;
  */
 public class FileWriter {
 
-    private HashMap<Double, RealVector> timeVector;
+    private List<TimeVectorPair> timeVector;
     private Path file;
 
     public FileWriter(){
-        timeVector = new HashMap<>();
+        timeVector = new ArrayList<>();
         file = Paths.get("output.txt");
     }
 
     public void addTimeVector(double time, RealVector vector){
-        timeVector.put(time, vector);
+        timeVector.add(new TimeVectorPair(time, vector));
     }
 
     public void writePretty(){
         List<String> lines = new ArrayList<>();
-        timeVector.forEach((t, v) -> {
+        double t;
+        RealVector v;
+
+        for (TimeVectorPair tvp: timeVector){
+            t = tvp.getT();
+            v = tvp.getVector();
+
             lines.add("T = " + t);
 
             String csvLine = "H = { ";
@@ -43,7 +45,7 @@ public class FileWriter {
             csvLine += "}\n";
 
             lines.add(csvLine);
-        });
+        }
 
         try {
             Files.write(file, lines, Charset.forName("UTF-8"));
@@ -54,14 +56,26 @@ public class FileWriter {
 
     public void writeCSV(char separator){
         List<String> lines = new ArrayList<>();
-        timeVector.forEach((t, v) -> {
-            String csvLine = "" + t + separator;
+        double t;
+        RealVector v;
+
+        String titleLine = "time";
+        for (int i = 0; i < timeVector.get(0).getVector().getDimension(); i++){
+            titleLine += separator + "temp" + i;
+        }
+        lines.add(titleLine);
+
+        for (TimeVectorPair tvp : timeVector){
+            t = tvp.getT();
+            v = tvp.getVector();
+
+            String csvLine = String.format("%.1f", t);
             for (int i = 0; i < v.getDimension(); i++){
-                csvLine += String.format("%.2f" + separator, v.getEntry(i));
+                csvLine += String.format("%c%.2f", separator, v.getEntry(i));
             }
 
             lines.add(csvLine);
-        });
+        }
 
         try {
             Files.write(file, lines, Charset.forName("UTF-8"));

@@ -16,10 +16,9 @@ import java.nio.file.Paths;
 public class Main {
 
     public static void main(String[] args){
-        String file = readFile(Main.class.getResource("/data2.txt"));
+        String file = readFile(Main.class.getResource("/beer_warming.txt"));
 
         Mesh mesh = MeshLoader.loadMesh(file);
-        mesh.build();
 
         Solver solver = new Solver();
         solver.solve(mesh);

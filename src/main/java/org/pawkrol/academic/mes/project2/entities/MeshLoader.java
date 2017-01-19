@@ -3,6 +3,8 @@ package org.pawkrol.academic.mes.project2.entities;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by pawkrol on 10/31/16.
@@ -15,16 +17,36 @@ public class MeshLoader {
 
         Mesh mesh = new Mesh();
 
-        mesh.setN(getIntValue(reader));
-        mesh.setrMin(getDoubleValue(reader));
-        mesh.setrMax(getDoubleValue(reader));
+        mesh.setrMin(getFloatValue(reader));
+        mesh.setrMax(getFloatValue(reader));
         mesh.setAlpha(getFloatValue(reader));
         mesh.setTempBegin(getFloatValue(reader));
         mesh.setTempAir(getFloatValue(reader));
-        mesh.setC(getFloatValue(reader));
-        mesh.setRo(getFloatValue(reader));
-        mesh.setK(getFloatValue(reader));
         mesh.setTauMax(getDoubleValue(reader));
+        mesh.setDtau(getDoubleValue(reader));
+
+        int nodesN = getIntValue(reader);
+        mesh.setN(nodesN);
+        mesh.buildNodes();
+
+        List<Material> materials = new ArrayList<>();
+        int materialN = getIntValue(reader);
+        for (int i = 0; i < materialN; i++){
+            materials.add(getMaterial(reader));
+        }
+
+        int elementsGroups = getIntValue(reader);
+        for (int i = 0; i < elementsGroups; i++){
+            ElementInfo elementInfo = getElementInfo(reader);
+
+            assert elementInfo != null;
+
+            mesh.buildElementsWithMaterial(
+                    elementInfo.getStartNode(),
+                    elementInfo.getEndNode(),
+                    materials.get(elementInfo.getMaterialID())
+            );
+        }
 
         return mesh;
     }
@@ -69,6 +91,44 @@ public class MeshLoader {
         }
 
         return 0;
+    }
+
+    private static Material getMaterial(BufferedReader reader){
+        String[] tokens;
+        Material material = new Material();
+
+        try {
+            tokens = getTokens(reader);
+
+            material.setC(Float.parseFloat(tokens[0]));
+            material.setRo(Float.parseFloat(tokens[1]));
+            material.setK(Float.parseFloat(tokens[2]));
+
+            return material;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private static ElementInfo getElementInfo(BufferedReader reader){
+        String[] tokens;
+        ElementInfo elementInfo = new ElementInfo();
+
+        try {
+            tokens = getTokens(reader);
+
+            elementInfo.setStartNode(Integer.parseInt(tokens[0]));
+            elementInfo.setEndNode(Integer.parseInt(tokens[1]));
+            elementInfo.setMaterialID(Integer.parseInt(tokens[2]));
+
+            return elementInfo;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     private static String[] getTokens(BufferedReader reader) throws IOException{

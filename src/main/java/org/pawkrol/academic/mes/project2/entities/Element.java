@@ -10,12 +10,15 @@ public class Element {
     private Node n1;
     private Node n2;
 
+    private Material material;
+
     private RealMatrix lK;
     private RealMatrix lF;
 
-    public Element(Node n1, Node n2) {
+    public Element(Node n1, Node n2, Material material) {
         this.n1 = n1;
         this.n2 = n2;
+        this.material = material;
     }
 
     public Node getN1() {
@@ -48,5 +51,13 @@ public class Element {
 
     public RealMatrix getlF() {
         return lF;
+    }
+
+    public Material getMaterial() {
+        return material;
+    }
+
+    public void setMaterial(Material material) {
+        this.material = material;
     }
 }

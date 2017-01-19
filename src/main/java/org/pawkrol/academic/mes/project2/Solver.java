@@ -4,6 +4,7 @@ import org.apache.commons.math3.linear.*;
 import org.pawkrol.academic.mes.project2.entities.Element;
 import org.pawkrol.academic.mes.project2.entities.Mesh;
 import org.pawkrol.academic.mes.project2.entities.Node;
+import org.pawkrol.academic.mes.project2.writer.FileWriter;
 
 import java.util.List;
 
@@ -24,10 +25,8 @@ public class Solver {
     private int np = W.length;
 
     private double timeStep;
-    private double dr;
-    private double rMax;
-    private double factor1;
-    private double factor2;
+    private float dr;
+    private float rMax;
     private float alphaAir;
     private float tempAir;
 
@@ -35,6 +34,7 @@ public class Solver {
 
     public void solve(Mesh mesh){
         initialize(mesh);
+
         double endTime = mesh.getTauMax();
         List<Element> elements = mesh.getElements();
         writer = new FileWriter();
@@ -56,7 +56,8 @@ public class Solver {
             writer.addTimeVector(t, solution);
         }
 
-        writer.writeCSV(',');
+//        writer.writeCSV(';');
+        writer.writePretty();
         displayMatrixForm(K, F);
 
         System.out.println("\nSolution:");
@@ -64,13 +65,9 @@ public class Solver {
     }
 
     private void initialize(Mesh mesh) {
-//        float a = mesh.getK() / (mesh.getC() * mesh.getRo());
         dr = mesh.getDr();
         rMax = mesh.getrMax();
-//        timeStep = (dr * dr) / (0.5 * a);
-        timeStep = 50;
-        factor1 = mesh.getK() / dr;
-        factor2 = (mesh.getC() * mesh.getRo() * dr) / timeStep;
+        timeStep = mesh.getDtau();
         alphaAir = mesh.getAlpha();
         tempAir = mesh.getTempAir();
     }
@@ -83,6 +80,8 @@ public class Solver {
         double K00 = 0, K01 = 0, K10, K11 = 0;
         double F1 = 0, F2 = 0;
         double rpwp = 0;
+        double factor1 = e.getMaterial().getK() / dr;
+        double factor2 = (e.getMaterial().getC() * e.getMaterial().getRo() * dr) / timeStep;
 
         for (int i = 0; i < np; i++){
             rp = N[0][i] * e.getN1().getR() + N[1][i] * e.getN2().getR();
